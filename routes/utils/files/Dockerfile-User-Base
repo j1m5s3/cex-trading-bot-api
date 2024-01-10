@@ -1,0 +1,6 @@
+FROM cex-bot/base:latest
+
+COPY <USER-ENV> .env
+
+ENTRYPOINT ["python"]
+CMD ["god.py"]

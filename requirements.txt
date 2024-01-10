@@ -1,0 +1,9 @@
+pymongo
+colorlog
+python-dotenv
+flask
+flask-smorest
+flask_cors
+marshmallow
+Flask-JWT-Extended
+docker

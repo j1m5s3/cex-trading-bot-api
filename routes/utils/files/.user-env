@@ -1,0 +1,49 @@
+# General
+ENV=DOCKER
+USER_ID=<USER-ID>
+
+# Coinbase
+COINBASE_PUBLIC_URL=https://api.exchange.coinbase.com
+COINBASE_ADVANCED_TRADE_URL=https://api.coinbase.com
+COINBASE_API_KEY_NO_ORIGIN=<USER-API-KEY>
+COINBASE_API_SECRET_NO_ORIGIN=<USER-API-SECRET>
+CB_NO_ORIGIN=True
+####################
+
+# CoinGecko
+COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
+####################
+
+# Kraken
+KRAKEN_PUBLIC_BASE_URL=https://api.kraken.com/0/public
+
+# ML models
+DOCKER_LINEAR_REGRESSION_MODEL=/usr/src/app/ml/saved_models/linear_regression/LINEAR_REGRESSION_MODEL
+####################
+
+# ML Data
+ML_DATA_DIR=/home/jlynch0/trading_bots/cex-trading-bot/ml/data/{} # {} is replaced with the model name
+####################
+
+# Parallelism
+USE_MODIN=False
+DFRAME_NPARTITIONS=10
+
+# DISCORD
+DISCORD_CHANNEL_WEBHOOK=<USER-DISCORD-WEBHOOK-URL>
+
+# Bot Settings
+ASSET_ID=<USER-ASSET-ID>
+RUN_INTERVAL=60
+RUN_INDEFINITELY=True
+FIXED_ORDER_SIZE=<USER-FIXED-ORDER-SIZE>
+BUY_ORDER_CASH=<USER-BUY-ORDER-CASH>
+RUN_SEED=<USER-RUN-SEED>
+
+# Trading Settings
+PERCENT_PROFIT_MIN=<USER-PERCENT-PROFIT-MIN>
+BUY_ONLY=<USER-BUY-ONLY>
+SELL_ONLY=<USER-SELL-ONLY>
+ACCUMULATE_ASSET=<USER-ACCUMULATE-ASSET>
+ACCUMULATE_CASH=<USER-ACCUMULATE-CASH>
+
