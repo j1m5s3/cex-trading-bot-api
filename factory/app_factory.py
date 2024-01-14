@@ -6,6 +6,7 @@ from flask_cors import CORS
 
 from utils import config, logger
 from db.mongo_interface import MongoInterface
+from db.redis_interface import RedisInterface
 
 
 def create_flask_app() -> Flask:
@@ -61,3 +62,5 @@ def add_extensions(app: Flask) -> None:
     )
 
     app.extensions['docker_client'] = docker.from_env()
+
+    app.extensions['redis_interface'] = RedisInterface()

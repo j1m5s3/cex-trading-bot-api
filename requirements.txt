@@ -7,3 +7,5 @@ flask_cors
 marshmallow
 Flask-JWT-Extended
 docker
+redis
+pandas

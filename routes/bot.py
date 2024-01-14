@@ -7,6 +7,7 @@ from flask_smorest import Blueprint
 from flask_jwt_extended import jwt_required
 
 from db.mongo_interface import MongoInterface
+from db.redis_interface import RedisInterface
 
 from routes.schemas.base import BaseResponseSchema
 from routes.schemas.bot_schema import DeployPOSTRequestSchema
@@ -31,7 +32,7 @@ class BotsView(MethodView):
         """
         Deploy bot
         """
-        user_id = "test"
+        user_id = "test"  # TODO: Get user id from jwt token
         docker_client: DockerClient = current_app.extensions['docker_client']
 
         # Step 1: Check if user at max bots
@@ -55,3 +56,15 @@ class BotsView(MethodView):
             current_app.logger.info(f"Error deploying bot: {e}")
 
         return {"data": "Bot deployed successfully"}
+
+    #@jwt_required
+    #@document_login_required
+    @bot_blueprint.response(status_code=200, schema=BaseResponseSchema)
+    def get(self):
+        """
+        Get all ACTIVE bots
+        """
+        user_id = "test"
+        redis_interface: RedisInterface = current_app.extensions['redis_interface']
+
+        redis_interface.keys(f"{user_id}*")
