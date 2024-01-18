@@ -125,7 +125,8 @@ class RedisInterface(Redis, ABC):
             RedisValueTypes.LAST_OHLC_TIMESTAMP,
             RedisValueTypes.HISTORICAL_OHLC,
             RedisValueTypes.TRADING_STRATEGY,
-            RedisValueTypes.LAST_TRADE
+            RedisValueTypes.LAST_TRADE,
+            RedisValueTypes.ACTIVE_BOTS,
         ]
 
         if subkey is None:

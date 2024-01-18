@@ -13,3 +13,4 @@ class RedisValueTypes(Enum):
     TRADING_STRATEGY = 9
     FIXED_ORDER_SIZE = 10
     SPENDING_LIMIT = 11
+    ACTIVE_BOTS = 12

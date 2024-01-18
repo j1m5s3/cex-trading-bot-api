@@ -1,11 +1,13 @@
+from typing import Tuple
 
-def replace_placeholder_env_values_with_user(user_env: dict, user_id: str) -> str:
+
+def replace_placeholder_env_values_with_user(user_env: dict, user_id: str) -> Tuple[str, str]:
     """
     Replace placeholder values in .env file with user values
 
     :param user_env: User environment values
     :param user_id:
-    :return: Updated .<user_id>-env file path
+    :return: (Updated Dockerfile-<user_id> path, Updated .<user_id>-env file path)
     """
     files_prefix = 'routes/utils/files'
     with open(f'{files_prefix}/.user-env', 'r') as f:
@@ -29,5 +31,4 @@ def replace_placeholder_env_values_with_user(user_env: dict, user_id: str) -> st
     with open(user_dockerfile_fp, 'w') as f:
         f.write(user_dockerfile)
 
-    return user_dockerfile_fp
-
+    return user_dockerfile_fp, user_env_fp
