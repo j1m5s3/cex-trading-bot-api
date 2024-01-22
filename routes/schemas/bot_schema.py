@@ -56,3 +56,11 @@ class DeployPOSTRequestSchema(Schema):
             user_env_fields[11]: combined_data["accumulate_cash"]
         }
         return {"user_env": formatted_dict, "asset_id": combined_data["asset_id"]}
+
+
+class KillDELETERequestSchema(Schema):
+    """
+    Schema for POST request to /kill
+    """
+    bot_id = fields.String(required=True)
+

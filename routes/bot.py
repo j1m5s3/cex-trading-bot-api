@@ -12,7 +12,7 @@ from db.mongo_interface import MongoInterface
 from db.redis_interface import RedisInterface
 
 from routes.schemas.base import BaseResponseSchema
-from routes.schemas.bot_schema import DeployPOSTRequestSchema
+from routes.schemas.bot_schema import DeployPOSTRequestSchema, KillDELETERequestSchema
 from routes.utils.auth_utils import document_login_required, token_required
 from routes.utils.file_utils import replace_placeholder_env_values_with_user
 
@@ -124,3 +124,51 @@ class BotsView(MethodView):
             user_active_bot_record = {}
 
         return {"data": {'active': user_active_bot_record, 'count': len(user_active_bot_record.keys())}}
+
+
+@bot_blueprint.route('/kill')
+class BotsView(MethodView):
+
+    @token_required
+    @document_login_required
+    @bot_blueprint.arguments(schema=KillDELETERequestSchema, location='query')
+    @bot_blueprint.response(status_code=200, schema=BaseResponseSchema)
+    def delete(self, data, current_user):
+        """
+        Kill bot
+        """
+        user_id = current_user
+        bot_id = data['bot_id']
+
+        docker_client: DockerClient = current_app.extensions['docker_client']
+        redis_interface: RedisInterface = current_app.extensions['redis_interface']
+
+        try:
+            container = docker_client.containers.get(container_id=bot_id)
+            user_active_bot_record = redis_interface.get_item(
+                redis_value_type=RedisValueTypes.ACTIVE_BOTS, subkey=user_id
+            )
+        except Exception as e:
+            current_app.logger.info(f"Error terminating container: {e}")
+            abort(404, "Container not found")
+
+        container.remove(force=True)
+        killed_record = user_active_bot_record.pop(bot_id, None)
+
+        set_item = redis_interface.set_item(
+            redis_value_type=RedisValueTypes.ACTIVE_BOTS,
+            subkey=user_id,
+            value=user_active_bot_record
+        )
+
+        if not set_item:
+            current_app.logger.info(f"Error setting active bot record for user: {user_id}")
+            flask.abort(500, "Error setting active bot record for user")
+
+        return {
+            "data": {
+                "active": user_active_bot_record,
+                "killed": killed_record,
+                "message": "Bot killed successfully"
+            }
+        }
