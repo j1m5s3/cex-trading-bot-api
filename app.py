@@ -1,4 +1,4 @@
-import argparse
+import argparse, os
 from flask import request
 from flask_smorest import Api
 from flask_cors import CORS
@@ -10,12 +10,17 @@ from factory.app_factory import create_flask_app
 from routes.auth import auth_blueprint
 from routes.bot import bot_blueprint
 
+OS_ENV: str = os.environ.get("OS_ENV", "dev")
+RUNTIME_ENV: str = os.environ.get("RUNTIME_ENV", "local")
 
 app = create_flask_app()
 flask_api = Api(app)
 jwt_manager = JWTManager(app)
 
-CORS(app, origins=config["CORS_ORIGINS"])
+if OS_ENV in ["LINUX", "WINDOWS"]:
+    CORS(app, origins=config["CORS_ORIGINS"])
+else:
+    CORS(app, origins="*")
 
 flask_api.register_blueprint(auth_blueprint)
 flask_api.register_blueprint(bot_blueprint)
@@ -55,8 +60,15 @@ def log_request_and_response(response):
 if __name__ == "__main__":
     # TODO: Add command line arguments
 
-    app.run(
-        debug=False,
-        host="localhost",
-        port=6900
-    )
+    if RUNTIME_ENV == "DOCKER":
+        app.run(
+            debug=False,
+            host="0.0.0.0",
+            port=5000
+        )
+    else:
+        app.run(
+            debug=True,
+            host="localhost",
+            port=6900
+        )
