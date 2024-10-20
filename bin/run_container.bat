@@ -1,0 +1,1 @@
+docker run -v /var/run/docker.sock:/var/run/docker.sock -d -t -p 5000:5000 generaliroh/general-project-repo:trading-bot-api-v1
