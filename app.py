@@ -9,6 +9,7 @@ from factory.app_factory import create_flask_app
 
 from routes.auth import auth_blueprint
 from routes.bot import bot_blueprint
+from routes.data import data_blueprint
 
 OS_ENV: str = os.environ.get("OS_ENV", "dev")
 RUNTIME_ENV: str = os.environ.get("RUNTIME_ENV", "local")
@@ -24,6 +25,7 @@ else:
 
 flask_api.register_blueprint(auth_blueprint)
 flask_api.register_blueprint(bot_blueprint)
+flask_api.register_blueprint(data_blueprint)
 
 
 @app.route("/")
