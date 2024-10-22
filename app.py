@@ -1,4 +1,5 @@
-import argparse, os
+import argparse, os, platform
+
 from flask import request
 from flask_smorest import Api
 from flask_cors import CORS
@@ -69,8 +70,15 @@ if __name__ == "__main__":
             port=5000
         )
     else:
-        app.run(
-            debug=True,
-            host="localhost",
-            port=6900
-        )
+        if platform.system() == "Windows":
+            app.run(
+                debug=False,
+                host="localhost",
+                port=6900
+            )
+        else:
+            app.run(
+                debug=True,
+                host="localhost",
+                port=6900
+            )

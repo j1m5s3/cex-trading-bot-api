@@ -37,9 +37,10 @@ class LiveRatesView(MethodView):
         chain: str = args.get('chain_name').upper()
         token: str = args.get('token_symbol', None)
 
-        pattern = f"{chain}*"
         if token:
-            pattern = f"{pattern}*{token.upper()}*RATES"
+            pattern = f"{chain}*{token.upper()}*RATES"
+        else:
+            pattern = f"{chain}*RATES"
 
         keys_found = list(redis_interface.scan_iter(match=pattern))
         if len(keys_found) == 0:
