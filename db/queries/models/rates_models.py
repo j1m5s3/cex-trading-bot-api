@@ -18,7 +18,7 @@ class BaseQueryModel:
             else:
                 for key, value in self.__dict__.items():
                     if key != 'query':
-                        if isinstance(value, str) or isinstance(value, list):
+                        if (isinstance(value, str) or isinstance(value, list)) or value is None:
                             if isinstance(value, list):
                                 all_str = all(isinstance(x, str) for x in value)
                                 if not all_str:
@@ -36,11 +36,12 @@ class BaseQueryModel:
         query_dict = {}
         for key, value in self.__dict__.items():
             if key != 'query':
-                if isinstance(value, list):
-                    query_dict[key] = {'$in': value}
-                else:
-                    if value != '':
-                        query_dict[key] = value
+                if value:
+                    if isinstance(value, list):
+                        query_dict[key] = {'$in': value}
+                    else:
+                        if value != '':
+                            query_dict[key] = value
 
         self.query = query_dict
 

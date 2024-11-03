@@ -21,3 +21,9 @@ class RedisValueTypes(Enum):
 class MongoQueryOperations(Enum):
     IN = "$int"
     EQUAL = "$eq"
+
+class ChainIds(Enum):
+    ARBITRUM = 42161
+    OPTIMISM = 10
+    ETH_MAIN = 1
+    ETH_SEPOLIA = 11155111

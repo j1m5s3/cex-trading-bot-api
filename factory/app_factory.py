@@ -56,10 +56,17 @@ def add_extensions(app: Flask) -> None:
     :param app:
     :return:
     """
-    app.extensions['mongo_interface'] = MongoInterface(
-        db_name=config['DB_NAME'],
-        connection_url=config['MONGO_CONNECTION_STRING']
-    )
+    mongo_interfaces = {
+        "bot": MongoInterface(
+            db_name=config['DB_NAME_BOT'],
+            connection_url=config['MONGO_CONNECTION_STRING']
+        ),
+        'on_chain': MongoInterface(
+            db_name=config['DB_NAME_ONCHAIN_DATA'],
+            connection_url=config['MONGO_CONNECTION_STRING']
+        )
+    }
+    app.extensions['mongo_interfaces'] = mongo_interfaces
 
     app.extensions['docker_client'] = docker.from_env()
 
