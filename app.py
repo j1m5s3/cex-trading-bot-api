@@ -54,7 +54,11 @@ def log_request_and_response(response):
     # log response
     app.logger.info(response_bound)
     app.logger.info(f"status: {response.status}")
-    app.logger.info(f"json: {response.json}")
+    try:
+        app.logger.info(f"json: {response.json}")
+    except Exception as e:
+        app.logger.error(f"Error: {e}")
+        app.logger.info(f"response: {response.text}")
     app.logger.info(end_bound)
 
     return response

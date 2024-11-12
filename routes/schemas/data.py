@@ -7,7 +7,8 @@ class GETLiveRatesRequestSchema(Schema):
     """
 
     chain_name = fields.String(required=True)
-    token_symbol = fields.String(required=False)
+    token_symbols = fields.List(fields.String(), required=False)
+    protocols = fields.List(fields.String(), required=False)
 
 
 class GETHistoricalRatesRequestSchema(Schema):

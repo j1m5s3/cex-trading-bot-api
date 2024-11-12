@@ -18,7 +18,11 @@ from db.queries.models.rates_models import RatesIdentQueryModel
 
 from routes.schemas.base import BaseResponseSchema
 from routes.schemas.data import GETLiveRatesRequestSchema, GETHistoricalRatesRequestSchema
-from routes.utils.data_utils import create_nested_data, get_timestamp_range_from_option
+from routes.utils.data_utils import (
+    create_nested_data,
+    get_timestamp_range_from_option,
+    create_redis_token_protocol_patterns
+)
 
 from utils.enums import RedisValueTypes
 
@@ -41,14 +45,15 @@ class LiveRatesView(MethodView):
         redis_interface: RedisInterface = current_app.extensions['redis_interface']
 
         chain: str = args.get('chain_name').upper()
-        token: str = args.get('token_symbol', None)
+        protocols: list = json.loads(args.get('protocols', ['[]'])[0])
+        tokens: list = json.loads(args.get('token_symbols', ['[]'])[0])
 
-        if token:
-            pattern = f"{chain}*{token.upper()}*RATES"
-        else:
-            pattern = f"{chain}*RATES"
+        key_patterns: list = create_redis_token_protocol_patterns(chain=chain, tokens=tokens, protocols=protocols)
 
-        keys_found = list(redis_interface.scan_iter(match=pattern))
+        keys_found = []
+        for key_pattern in key_patterns:
+            keys_found.extend(list(redis_interface.scan_iter(match=key_pattern)))
+
         if len(keys_found) == 0:
             return {"data": {"rates": []}}
 
@@ -96,7 +101,10 @@ class HistoryRatesView(MethodView):
         rates_records = list(mongo_interface.find(collection=collection_name, query=qry, include_exclude={'_id': 0}))
 
         rates_pd: pd.DataFrame = pd.DataFrame(rates_records).sort_values(by='timestamp')
-        timestamps: list = rates_pd['timestamp'].to_list()
+        #timestamps: list = rates_pd['timestamp'].unique().tolist()
+        timestamps: list = ((pd.to_datetime(rates_pd['timestamp'], unit='s'
+                               ).dt.round('min').unique() - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')).tolist()
+
         nested_rates: dict = create_nested_data(
             data=rates_pd,
             nest_level_0='protocol',
