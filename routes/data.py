@@ -29,11 +29,11 @@ from utils.enums import RedisValueTypes
 data_blueprint = Blueprint(
     'data',
     __name__,
-    url_prefix='/data/rates',
+    url_prefix='/data',
     description='Data API'
 )
 
-@data_blueprint.route('/live')
+@data_blueprint.route('/rates/live')
 class LiveRatesView(MethodView):
 
     @data_blueprint.arguments(schema=GETLiveRatesRequestSchema, location='query')
@@ -64,7 +64,7 @@ class LiveRatesView(MethodView):
 
         return {"data": {"rates": rates_records}}
 
-@data_blueprint.route('/history')
+@data_blueprint.route('/rates/history')
 class HistoryRatesView(MethodView):
 
     @data_blueprint.arguments(schema=GETHistoricalRatesRequestSchema, location='query')
@@ -113,3 +113,31 @@ class HistoryRatesView(MethodView):
         )
 
         return {"data": {"rates": nested_rates, "timestamps": timestamps}}
+
+@data_blueprint.route('/txns/history')
+class HistoryTxnsView(MethodView):
+
+    @jwt_required()
+    @data_blueprint.response(status_code=200, schema=BaseResponseSchema)
+    def get(self):
+        """
+        Get history transactions
+        """
+        mongo_interface: MongoInterface = current_app.extensions['mongo_interfaces']['on_chain']
+
+        # For now, we can return a static response
+        # In the future, we can implement logic to fetch transactions from MongoDB
+        response_data = {
+            "transactions": [
+                {
+                    "tx_hash": "0x1234567890abcdef",
+                    "block_number": 12345678,
+                    "from_address": "0xabcdef1234567890",
+                    "to_address": "0x1234567890abcdef",
+                    "value": 1000000000000000000,
+                    "timestamp": dt.datetime.now().timestamp()
+                }
+            ]
+        }
+
+        return {"data": response_data}

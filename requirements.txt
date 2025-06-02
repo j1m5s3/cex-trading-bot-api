@@ -9,3 +9,4 @@ Flask-JWT-Extended
 docker
 redis
 pandas
+requests

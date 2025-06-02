@@ -7,6 +7,7 @@ from flask_cors import CORS
 from utils import config, logger
 from db.mongo_interface import MongoInterface
 from db.redis_interface import RedisInterface
+from external_apis.etherscan_api_interface import EtherscanAPIInterface
 
 
 def create_flask_app() -> Flask:
@@ -71,3 +72,8 @@ def add_extensions(app: Flask) -> None:
     app.extensions['docker_client'] = docker.from_env()
 
     app.extensions['redis_interface'] = RedisInterface()
+
+    app.extensions['etherscan_api_interface'] = EtherscanAPIInterface(
+        api_key=config['ETHERSCAN_API_KEY'],
+        api_url=config['ETHERSCAN_API_URL']
+    )
