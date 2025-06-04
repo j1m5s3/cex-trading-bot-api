@@ -1,15 +1,16 @@
 import os
 import json
-
 import pandas as pd
-
 import datetime as dt
 from datetime import timedelta
+from typing import List
 
 from flask import current_app, make_response, jsonify, abort
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_jwt_extended import jwt_required
+
+from external_apis.etherscan_api_interface import EtherscanAPIInterface
 
 from db.mongo_interface import MongoInterface
 from db.redis_interface import RedisInterface
@@ -17,7 +18,7 @@ from db.queries.rates import get_rates_query
 from db.queries.models.rates_models import RatesIdentQueryModel
 
 from routes.schemas.base import BaseResponseSchema
-from routes.schemas.data import GETLiveRatesRequestSchema, GETHistoricalRatesRequestSchema
+from routes.schemas.data import GETLiveRatesRequestSchema, GETHistoricalRatesRequestSchema, GETTransactionsRequestSchema
 from routes.utils.data_utils import (
     create_nested_data,
     get_timestamp_range_from_option,
@@ -25,6 +26,7 @@ from routes.utils.data_utils import (
 )
 
 from utils.enums import RedisValueTypes
+from utils.constants import ZERO_ADDRESS
 
 data_blueprint = Blueprint(
     'data',
@@ -117,27 +119,51 @@ class HistoryRatesView(MethodView):
 @data_blueprint.route('/txns/history')
 class HistoryTxnsView(MethodView):
 
-    @jwt_required()
+    @data_blueprint.arguments(schema=GETTransactionsRequestSchema, location='query')
     @data_blueprint.response(status_code=200, schema=BaseResponseSchema)
-    def get(self):
+    def get(self, args):
         """
         Get history transactions
         """
-        mongo_interface: MongoInterface = current_app.extensions['mongo_interfaces']['on_chain']
+        etherscan_api: EtherscanAPIInterface = current_app.extensions['etherscan_api_interface']
 
-        # For now, we can return a static response
-        # In the future, we can implement logic to fetch transactions from MongoDB
+        chainid: int = args.get('chainid')
+        address: str = args.get('address')
+        contract_address: str = args.get('contract_address')
+        timestamp: int = args.get('timestamp')
+        start_block: int = args.get('start_block')
+
+        transfer_txns: List[dict] = etherscan_api.get_erc20_transfer_events(
+            address=address,
+            contract_address=contract_address,
+            chainid=chainid,
+            start_block=start_block,
+        )
+        transfer_txns_df: pd.DataFrame = pd.DataFrame(transfer_txns)
+        transfer_txns_df['type'] = 'TRANSFER'
+
+        zero_addr_idx = transfer_txns_df[transfer_txns_df['from'] == ZERO_ADDRESS]
+        if zero_addr_idx.sum() > 0:
+            transfer_txns_df.loc[zero_addr_idx.index, 'type'] = 'INVEST'
+
+        transfer_txns_df.rename(
+            columns={
+                'contractAddress': 'token_address',
+                'value': 'amount',
+                'tokenSymbol': 'token_symbol',
+                'timeStamp': 'timestamp',
+            },
+            inplace=True
+        )
+
+        desired_columns = [
+            'hash', 'from', 'to', 'token_address', 'amount', 'token_symbol', 'timestamp', 'type'
+        ]
+        transfer_txns_df = transfer_txns_df[desired_columns]
+
+        txn_list: list = transfer_txns_df.to_dict(orient='records')
         response_data = {
-            "transactions": [
-                {
-                    "tx_hash": "0x1234567890abcdef",
-                    "block_number": 12345678,
-                    "from_address": "0xabcdef1234567890",
-                    "to_address": "0x1234567890abcdef",
-                    "value": 1000000000000000000,
-                    "timestamp": dt.datetime.now().timestamp()
-                }
-            ]
+            "transactions": txn_list
         }
 
         return {"data": response_data}
