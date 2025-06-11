@@ -69,7 +69,11 @@ def add_extensions(app: Flask) -> None:
     }
     app.extensions['mongo_interfaces'] = mongo_interfaces
 
-    app.extensions['docker_client'] = docker.from_env()
+    try:
+        app.extensions['docker_client'] = docker.from_env()
+    except docker.errors.DockerException as e:
+        app.logger.error(f"Failed to connect to Docker: {e}")
+        app.extensions['docker_client'] = None
 
     app.extensions['redis_interface'] = RedisInterface()
 

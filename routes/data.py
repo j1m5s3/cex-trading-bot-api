@@ -127,43 +127,53 @@ class HistoryTxnsView(MethodView):
         """
         etherscan_api: EtherscanAPIInterface = current_app.extensions['etherscan_api_interface']
 
-        chainid: int = args.get('chainid')
+        chainid: int = args.get('chain_id')
         address: str = args.get('address')
-        contract_address: str = args.get('contract_address')
+        contract_address: str = args.get('contract_address', '')
         timestamp: int = args.get('timestamp')
-        start_block: int = args.get('start_block')
 
-        transfer_txns: List[dict] = etherscan_api.get_erc20_transfer_events(
-            address=address,
-            contract_address=contract_address,
-            chainid=chainid,
-            start_block=start_block,
-        )
-        transfer_txns_df: pd.DataFrame = pd.DataFrame(transfer_txns)
-        transfer_txns_df['type'] = 'TRANSFER'
+        try:
+            start_block: int = etherscan_api.get_block_number_by_timestamp(timestamp=timestamp, chainid=chainid)
 
-        zero_addr_idx = transfer_txns_df[transfer_txns_df['from'] == ZERO_ADDRESS]
-        if zero_addr_idx.sum() > 0:
-            transfer_txns_df.loc[zero_addr_idx.index, 'type'] = 'INVEST'
+            transfer_txns: List[dict] = etherscan_api.get_erc20_transfer_events(
+                address=address,
+                contract_address=contract_address,
+                chainid=chainid,
+                start_block=start_block,
+            )
+            transfer_txns_df: pd.DataFrame = pd.DataFrame(transfer_txns)
+            transfer_txns_df['type'] = 'TRANSFER'
 
-        transfer_txns_df.rename(
-            columns={
-                'contractAddress': 'token_address',
-                'value': 'amount',
-                'tokenSymbol': 'token_symbol',
-                'timeStamp': 'timestamp',
-            },
-            inplace=True
-        )
+            zero_addr_idx = transfer_txns_df['from'] == ZERO_ADDRESS
+            if zero_addr_idx.sum() > 0:
+                transfer_txns_df.loc[zero_addr_idx, 'type'] = 'INVEST'
 
-        desired_columns = [
-            'hash', 'from', 'to', 'token_address', 'amount', 'token_symbol', 'timestamp', 'type'
-        ]
-        transfer_txns_df = transfer_txns_df[desired_columns]
+            transfer_txns_df.rename(
+                columns={
+                    'contractAddress': 'token_address',
+                    'value': 'amount',
+                    'tokenSymbol': 'token_symbol',
+                    'timeStamp': 'timestamp',
+                },
+                inplace=True
+            )
 
-        txn_list: list = transfer_txns_df.to_dict(orient='records')
-        response_data = {
-            "transactions": txn_list
-        }
+            desired_columns = [
+                'hash', 'from', 'to', 'token_address', 'amount', 'token_symbol', 'timestamp', 'type'
+            ]
+            transfer_txns_df = transfer_txns_df[desired_columns]
+
+            txn_list: list = transfer_txns_df.to_dict(orient='records')
+            response_data = {
+                "transactions": txn_list
+            }
+        except Exception as e:
+            current_app.logger.error(f"Error fetching transactions: {e}")
+            response = {
+                "transactions": [],
+                "status": "error",
+                "reason": str(e)
+            }
+            return response
 
         return {"data": response_data}
