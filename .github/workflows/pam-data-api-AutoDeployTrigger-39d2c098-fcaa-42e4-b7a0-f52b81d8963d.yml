@@ -35,7 +35,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.PAMDATAAPI_REGISTRY_USERNAME }}
-          password: ${{ secrets.PAMDATAAPI_REGISTRY_PASSWORD }}
+          password: ${{ secrets.DOCKER_PAT }}
 
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
