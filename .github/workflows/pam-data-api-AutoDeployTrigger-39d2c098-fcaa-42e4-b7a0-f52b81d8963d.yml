@@ -41,7 +41,7 @@ jobs:
           registryPassword: ${{ secrets.PAMDATAAPI_REGISTRY_PASSWORD }}
           containerAppName: pam-data-api
           resourceGroup: pam-apis
-          imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
+          imageToBuild: generaliroh/general-project-repo:pam_data_api
           _buildArgumentsKey_: |
             _buildArgumentsValues_
 
