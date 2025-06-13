@@ -43,8 +43,8 @@ jobs:
           appSourcePath: ${{ github.workspace }}
           _dockerfilePathKey_: _dockerfilePath_
           registryUrl: docker.io
-          registryUsername: ${{ secrets.PAMDATAAPI_REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.PAMDATAAPI_REGISTRY_PASSWORD }}
+          registryUsername: ${{ secrets.PAMAPI_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.DOCKER_PAT }}
           containerAppName: pam-data-api
           resourceGroup: pam-apis
           imageToBuild: generaliroh/general-project-repo:pam_data_api
