@@ -36,7 +36,7 @@ jobs:
         with:
           appSourcePath: ${{ github.workspace }}
           _dockerfilePathKey_: _dockerfilePath_
-          registryUrl: 
+          registryUrl: docker.io
           registryUsername: ${{ secrets.PAMDATAAPI_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.PAMDATAAPI_REGISTRY_PASSWORD }}
           containerAppName: pam-data-api
