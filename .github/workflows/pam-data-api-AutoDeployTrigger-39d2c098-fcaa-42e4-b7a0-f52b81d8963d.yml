@@ -42,6 +42,7 @@ jobs:
           containerAppName: pam-data-api
           resourceGroup: pam-apis
           imageToBuild: generaliroh/general-project-repo:pam_data_api
+          tags: ghcr.io/${{ github.repository_owner }}/generaliroh/general-project-repo:pam_data_api
           _buildArgumentsKey_: |
             _buildArgumentsValues_
 
