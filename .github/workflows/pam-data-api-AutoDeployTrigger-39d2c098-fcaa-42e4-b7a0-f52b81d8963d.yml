@@ -48,12 +48,13 @@ jobs:
           CORS_ORIGINS: ${{ secrets.ETHERSCAN_API_KEY }}
         run: |
           echo "MONGO_CONNECTION_STRING=$MONGO_CONNECTION_STRING\nDB_NAME_ONCHAIN_DATA=$DB_NAME_ONCHAIN_DATA\nJWT_SECRET_KEY=$JWT_SECRET_KEY\nJWT_EXPIRE_MINUTES=$JWT_EXPIRE_MINUTES\nETHERSCAN_API_KEY=$ETHERSCAN_API_KEY\nETHERSCAN_API_URL=$ETHERSCAN_API_URL\nCORS_ORIGINS=$CORS_ORIGINS" > .env
+          ls -la
 
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
+          _dockerfilePathKey_: ./Dockerfile-azure
           registryUrl: docker.io
           registryUsername: ${{ secrets.PAMAPI_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.DOCKER_PAT }}
