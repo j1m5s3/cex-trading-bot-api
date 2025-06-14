@@ -10,5 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+EXPOSE 6900
+
 ENTRYPOINT ["python"]
 CMD ["app.py"]
