@@ -44,11 +44,10 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           JWT_EXPIRE_MINUTES: ${{ secrets.JWT_EXPIRE_MINUTES }}
           ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
-          ETHERSCAN_API_URL: ${{ secrets.ETHERSCAN_API_KEY }}
-          CORS_ORIGINS: ${{ secrets.ETHERSCAN_API_KEY }}
+          ETHERSCAN_API_URL: ${{ secrets.ETHERSCAN_API_URL }}
+          CORS_ORIGINS: ${{ secrets.CORS_ORIGINS }}
         run: |
-          echo "JWT_EXPIRE_MINUTES=$JWT_EXPIRE_MINUTES\nETHERSCAN_API_URL=$ETHERSCAN_API_URL\nCORS_ORIGINS=$CORS_ORIGINS" > .env
-          ls -la
+          echo "MONGO_CONNECTION_STRING=$MONGO_CONNECTION_STRING\nDB_NAME_ONCHAIN_DATA=$DB_NAME_ONCHAIN_DATA\nJWT_SECRET_KEY=$JWT_SECRET_KEY\nJWT_EXPIRE_MINUTES=$JWT_EXPIRE_MINUTES\nETHERSCAN_API_KEY=$ETHERSCAN_API_KEY\nETHERSCAN_API_URL=$ETHERSCAN_API_URL\nCORS_ORIGINS=$CORS_ORIGINS" > .env          ls -la
           cat .env
 
       - name: Build and push container image to registry
