@@ -38,7 +38,16 @@ jobs:
           password: ${{ secrets.DOCKER_PAT }}
 
       - name: Copy from file storage
-        run: azcopy './.env' 'https://pamfiles.blob.core.windows.net/pam-sftp/.env'
+        env:
+            AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+            AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
+        run: | 
+          az storage blob download \
+          --account-name $AZURE_STORAGE_ACCOUNT \
+          --container-name $AZURE_STORAGE_CONTAINER \
+          --name .env \
+          --file ./.env \
+          --auth-mode login
 
 
 
