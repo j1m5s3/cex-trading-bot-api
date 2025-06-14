@@ -13,4 +13,17 @@ class RedisValueTypes(Enum):
     TRADING_STRATEGY = 9
     FIXED_ORDER_SIZE = 10
     SPENDING_LIMIT = 11
-    ACTIVE_BOTS = 12
+    FED_NET_LIQUIDITY = 12
+    ON_CHAIN_LENDING_RATES = 13
+    ON_CHAIN_BALANCES = 14
+
+
+class MongoQueryOperations(Enum):
+    IN = "$int"
+    EQUAL = "$eq"
+
+class ChainIds(Enum):
+    ARBITRUM = 42161
+    OPTIMISM = 10
+    ETH_MAIN = 1
+    ETH_SEPOLIA = 11155111

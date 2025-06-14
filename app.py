@@ -1,4 +1,5 @@
-import argparse, os
+import argparse, os, platform
+
 from flask import request
 from flask_smorest import Api
 from flask_cors import CORS
@@ -9,6 +10,7 @@ from factory.app_factory import create_flask_app
 
 from routes.auth import auth_blueprint
 from routes.bot import bot_blueprint
+from routes.data import data_blueprint
 
 OS_ENV: str = os.environ.get("OS_ENV", "dev")
 RUNTIME_ENV: str = os.environ.get("RUNTIME_ENV", "local")
@@ -24,6 +26,7 @@ else:
 
 flask_api.register_blueprint(auth_blueprint)
 flask_api.register_blueprint(bot_blueprint)
+flask_api.register_blueprint(data_blueprint)
 
 
 @app.route("/")
@@ -51,7 +54,11 @@ def log_request_and_response(response):
     # log response
     app.logger.info(response_bound)
     app.logger.info(f"status: {response.status}")
-    app.logger.info(f"json: {response.json}")
+    try:
+        app.logger.info(f"json: {response.json}")
+    except Exception as e:
+        app.logger.error(f"Error: {e}")
+        app.logger.info(f"response: {response.text}")
     app.logger.info(end_bound)
 
     return response
@@ -64,11 +71,18 @@ if __name__ == "__main__":
         app.run(
             debug=False,
             host="0.0.0.0",
-            port=5000
-        )
-    else:
-        app.run(
-            debug=True,
-            host="localhost",
             port=6900
         )
+    else:
+        if platform.system() == "Windows":
+            app.run(
+                debug=False,
+                host="localhost",
+                port=6900
+            )
+        else:
+            app.run(
+                debug=True,
+                host="localhost",
+                port=6900
+            )

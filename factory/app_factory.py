@@ -7,6 +7,7 @@ from flask_cors import CORS
 from utils import config, logger
 from db.mongo_interface import MongoInterface
 from db.redis_interface import RedisInterface
+from external_apis.etherscan_api_interface import EtherscanAPIInterface
 
 
 def create_flask_app() -> Flask:
@@ -56,11 +57,27 @@ def add_extensions(app: Flask) -> None:
     :param app:
     :return:
     """
-    app.extensions['mongo_interface'] = MongoInterface(
-        db_name=config['DB_NAME'],
-        connection_url=config['MONGO_CONNECTION_STRING']
-    )
+    mongo_interfaces = {
+        "bot": MongoInterface(
+            db_name=config['DB_NAME_BOT'],
+            connection_url=config['MONGO_CONNECTION_STRING']
+        ),
+        'on_chain': MongoInterface(
+            db_name=config['DB_NAME_ONCHAIN_DATA'],
+            connection_url=config['MONGO_CONNECTION_STRING']
+        )
+    }
+    app.extensions['mongo_interfaces'] = mongo_interfaces
 
-    app.extensions['docker_client'] = docker.from_env()
+    try:
+        app.extensions['docker_client'] = docker.from_env()
+    except docker.errors.DockerException as e:
+        app.logger.error(f"Failed to connect to Docker: {e}")
+        app.extensions['docker_client'] = None
 
     app.extensions['redis_interface'] = RedisInterface()
+
+    app.extensions['etherscan_api_interface'] = EtherscanAPIInterface(
+        api_key=config['ETHERSCAN_API_KEY'],
+        api_url=config['ETHERSCAN_API_URL']
+    )
