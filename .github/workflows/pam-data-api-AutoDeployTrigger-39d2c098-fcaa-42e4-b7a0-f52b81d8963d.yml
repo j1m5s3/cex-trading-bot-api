@@ -45,7 +45,7 @@ jobs:
           az storage blob download \
           --account-name $AZURE_STORAGE_ACCOUNT \
           --container-name $AZURE_STORAGE_CONTAINER \
-          --name .env \
+          --name .env.api \
           --file ./.env \
           --auth-mode login
 
